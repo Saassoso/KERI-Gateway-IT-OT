@@ -1,0 +1,3 @@
+[console_scripts]
+hio = hio.cli:main
+hiod = hio.daemon:main
