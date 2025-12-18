@@ -1,4 +1,5 @@
 # KERI Setup (Windows)
+
 This guide explains how to properly install and activate KERI (keripy) in a Python environment on Windows, including handling dependencies like libsodium.
 --- 
 ### Prerequisites
