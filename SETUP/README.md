@@ -67,7 +67,7 @@ pip install git+https://github.com/WebOfTrust/keripy.git
 
 Open your browser and go to:
 https://download.libsodium.org/libsodium/releases/
-   * `libsodium-1.0.20-msvc.zip` or newer if it exists
+   * Chose : `libsodium-1.0.20-msvc.zip` or newer if it exists
 2. Extract the zip and locate `libsodium.dll` (typically under `x64\Release\v143\dynamic\`)
 3. Copy `libsodium.dll` to your virtual environment's Scripts folder:
 
