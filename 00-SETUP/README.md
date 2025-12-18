@@ -64,6 +64,7 @@ pip install git+https://github.com/WebOfTrust/keripy.git
 ## Step 4 — Install libsodium (Required for pysodium)
 
 1. Download prebuilt DLL from libsodium releases:
+
 Open your browser and go to:
 https://download.libsodium.org/libsodium/releases/
    * `libsodium-1.0.20-msvc.zip` or newer if it exists
