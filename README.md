@@ -81,7 +81,8 @@ python scripts/03_kel_verifier.py
 **Why a Temporary Database?** 
 For demonstration purposes, 01_anchor_generator.py creates a unique, temporary database (keri_run_<uuid>) on every run. This ensures a "clean slate" for testing and prevents "Already Incepted" errors caused by KERI's strict identity protection rules.
 
-**Production Implementation** In a real-world deployment, the database path would be fixed. The script would check for an existing identity on startup and Load it instead of Creating a new one. This would ensure the sensor maintains the same cryptographic Identity (AID) for its entire lifecycle, even after reboots.
+**Production Implementation** In a real-world deployment, the database path would be fixed. The script would check for an existing identity on startup and Load it instead of Creating a new one. 
+This would ensure the sensor maintains the same cryptographic Identity (AID) for its entire lifecycle, even after reboots.
 
 ### Technical Details
 

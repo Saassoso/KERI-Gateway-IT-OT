@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT-OT Security Pipeline</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #header {
+            background: white;
+            padding: 16px 24px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 { font-size: 18px; font-weight: 600; }
+        #status { font-size: 12px; color: #666; font-family: monospace; }
+        #viz { 
+            flex: 1;
+            position: relative;
+            background: white;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #controls {
+            background: white;
+            padding: 16px 24px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .control { display: flex; align-items: center; gap: 8px; }
+        label { font-size: 12px; font-weight: 500; }
+        input[type="range"] { width: 120px; }
+        input[type="checkbox"] { width: 16px; height: 16px; }
+        button {
+            padding: 8px 16px;
+            background: #1558D6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        button:hover { background: #0A45B4; }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>IT-OT Security Pipeline</h1>
+        <div id="status">Total Records Anchored: 0</div>
+    </div>
+    
+    <div id="viz">
+        <canvas id="canvas"></canvas>
+    </div>
+    
+    <div id="controls">
+        <div class="control">
+            <label>Speed:</label>
+            <input type="range" id="flowSpeed" min="0.1" max="2" step="0.1" value="0.8">
+        </div>
+        <div class="control">
+            <label>Frequency:</label>
+            <input type="range" id="spawnRate" min="0.5" max="5" step="0.1" value="1.5">
+        </div>
+        <div class="control">
+            <label>Show Payload:</label>
+            <input type="checkbox" id="showPayload" checked>
+        </div>
+        <button id="triggerBtn">Manual Trigger</button>
+    </div>
+
+    <script>
+        // State
+        const state = {
+            flowSpeed: 0.8,
+            spawnRate: 1.5,
+            showPayload: true,
+            anchoredCount: 0
+        };
+
+        // Pipeline Nodes
+        const nodes = [
+            { label: 'Industrial Drone', icon: '🚁', sub: 'Modbus / Telemetry', color: '#1558D6' },
+            { label: 'KERI Agent', icon: '🔑', sub: 'SAID / Signing', color: '#681DA8' },
+            { label: 'Anchor File', icon: '📄', sub: 'Local JSON Vault', color: '#EAA937' },
+            { label: 'Python Bridge', icon: '🐍', sub: 'Broadcast Service', color: '#046E00' },
+            { label: 'Ethereum Contract', icon: '⬡', sub: 'Immutable Record', color: '#0B50D0' }
+        ];
+
+        // Data packets
+        const packets = [];
+        let lastSpawnTime = 0;
+        let lastFlashTime = -1;
+
+        // Canvas setup
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resize() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * window.devicePixelRatio;
+            canvas.height = rect.height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        // Spawn packet
+        function spawnPacket() {
+            packets.push({
+                progress: 0,
+                segment: 0,
+                val: (Math.random() * 100).toFixed(1),
+                id: Math.random().toString(36).substr(2, 5).toUpperCase()
+            });
+        }
+
+        // Draw tag helper
+        function drawTag(text, x, y, color = '#333') {
+            ctx.font = 'bold 12px sans-serif';
+            const width = ctx.measureText(text).width + 16;
+            const height = 24;
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.beginPath();
+            ctx.roundRect(x - width/2, y - height/2, width, height, 12);
+            ctx.fill();
+            
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, x, y);
+        }
+
+        // Animation loop
+        let lastTime = 0;
+        function animate(time) {
+            const dt = Math.min((time - lastTime) / 1000, 0.1);
+            lastTime = time;
+            
+            const width = canvas.width / window.devicePixelRatio;
+            const height = canvas.height / window.devicePixelRatio;
+            const padding = 60;
+            const centerY = height * 0.5;
+            const nodeSpacing = (width - padding * 2) / (nodes.length - 1);
+
+            // Clear
+            ctx.clearRect(0, 0, width, height);
+
+            // Auto-spawn
+            if (time/1000 - lastSpawnTime > state.spawnRate) {
+                spawnPacket();
+                lastSpawnTime = time/1000;
+            }
+
+            // Update packets
+            for (let i = packets.length - 1; i >= 0; i--) {
+                const p = packets[i];
+                p.progress += dt * state.flowSpeed;
+
+                if (p.progress >= 1) {
+                    p.segment++;
+                    p.progress = 0;
+
+                    if (p.segment >= nodes.length - 1) {
+                        state.anchoredCount++;
+                        lastFlashTime = time/1000;
+                        document.getElementById('status').textContent = 
+                            `Total Records Anchored: ${state.anchoredCount}`;
+                        packets.splice(i, 1);
+                    }
+                }
+            }
+
+            // Draw connections
+            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, centerY);
+            ctx.lineTo(width - padding, centerY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw nodes
+            nodes.forEach((node, i) => {
+                const x = padding + i * nodeSpacing;
+                const isLast = i === nodes.length - 1;
+                const isFlashing = isLast && (time/1000 - lastFlashTime < 0.5);
+                const scale = isFlashing ? 1.1 : 1.0;
+
+                ctx.fillStyle = node.color;
+                ctx.beginPath();
+                ctx.arc(x, centerY, 8 * scale, 0, Math.PI * 2);
+                ctx.fill();
+
+                const tagY = i % 2 === 0 ? centerY - 50 : centerY + 50;
+                drawTag(`${node.icon} ${node.label}`, x, tagY);
+                
+                ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                ctx.font = '10px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(node.sub, x, tagY + (i % 2 === 0 ? -20 : 25));
+            });
+
+            // Draw packets
+            packets.forEach(p => {
+                const startX = padding + p.segment * nodeSpacing;
+                const endX = padding + (p.segment + 1) * nodeSpacing;
+                const currentX = startX + (endX - startX) * p.progress;
+                
+                // Glow
+                const gradient = ctx.createRadialGradient(currentX, centerY, 0, currentX, centerY, 15);
+                gradient.addColorStop(0, 'rgba(21, 88, 214, 0.4)');
+                gradient.addColorStop(1, 'transparent');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(currentX, centerY, 15, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Body
+                ctx.fillStyle = '#1558D6';
+                ctx.beginPath();
+                ctx.arc(currentX, centerY, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Label
+                if (state.showPayload) {
+                    ctx.fillStyle = '#333';
+                    ctx.font = 'bold 9px monospace';
+                    ctx.textAlign = 'center';
+                    
+                    let label = '';
+                    if (p.segment === 0) label = `MODBUS:${p.val}`;
+                    else if (p.segment === 1) label = `SAID:${p.id}`;
+                    else if (p.segment === 2) label = `JSON_HASH`;
+                    else label = `TX_PROP`;
+
+                    ctx.fillText(label, currentX, centerY - 15);
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        // Controls
+        document.getElementById('flowSpeed').addEventListener('input', (e) => {
+            state.flowSpeed = parseFloat(e.target.value);
+        });
+        document.getElementById('spawnRate').addEventListener('input', (e) => {
+            state.spawnRate = parseFloat(e.target.value);
+        });
+        document.getElementById('showPayload').addEventListener('change', (e) => {
+            state.showPayload = e.target.checked;
+        });
+        document.getElementById('triggerBtn').addEventListener('click', spawnPacket);
+
+        // Start
+        requestAnimationFrame(animate);
+    </script>
+</body>
+</html>
