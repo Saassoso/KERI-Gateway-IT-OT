@@ -1,0 +1,36 @@
+# KERI Blockchain Anchored IT/OT - Requirements
+# Install with: pip install -r requirements.txt
+
+# Core KERI library (must be installed from GitHub)
+git+https://github.com/WebOfTrust/keripy.git
+
+# Cryptographic library for libsodium bindings
+pysodium>=0.7.18
+
+# Note: The following dependencies are automatically installed with keripy:
+# - lmdb>=1.7.3 (Lightning Memory-Mapped Database)
+# - blake3>=1.0.5 (Cryptographic hash function)
+# - msgpack>=1.1.0 (MessagePack serialization)
+# - cbor2>=5.6.5 (CBOR serialization)
+# - hio>=0.7.14 (HIO library)
+# - hjson>=3.1.0 (HJSON parser)
+# - falcon>=4.0.2 (Web framework)
+# - jsonschema>=4.24.0 (JSON schema validation)
+# - multidict>=6.6.3 (Multi-dictionary)
+# - ordered-set>=4.1.0 (Ordered set)
+# - mnemonic>=0.21 (Mnemonic phrase generation)
+# - prettytable>=3.16.0 (Pretty table formatting)
+# - qrcode>=8.2 (QR code generation)
+# - semver>=3.0.4 (Semantic versioning)
+# - PyYAML>=6.0.2 (YAML parser)
+# - cryptography>=45.0.5 (Cryptographic primitives)
+# - jsonschema-specifications (JSON schema specifications)
+# - referencing (JSON reference resolution)
+# - rpds-py (Rust-based data structures)
+# - typing-extensions (Type hints extensions)
+# - attrs (Attributes library)
+# - http-sfv (HTTP Structured Field Values)
+# - apispec (API specification)
+# - colorama (Terminal colors)
+# - wcwidth (Wide character width)
+

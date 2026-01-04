@@ -1,3 +1,4 @@
+import os
 import json
 import time
 import logging
@@ -55,5 +56,4 @@ def submit_transaction(data):
     logging.info(f"TX Confirmed: {said} anchored on-chain.")
 
 if __name__ == "__main__":
-    import os
     main()

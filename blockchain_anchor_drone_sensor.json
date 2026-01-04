@@ -1,0 +1,12 @@
+{
+    "aid": "EHTbCQNGV-rC0wr1FeE6BhX-E1Zk7VDJEiVtHLxl77UL",
+    "seq": 20,
+    "said": "EG15leVAqd5xXvtnmkoiz9whiw51FOk5aTfiXIFBZOvo",
+    "payload": {
+        "status": "ACTIVE",
+        "cycle": 20,
+        "temp": 45,
+        "sector": "DRONE_20",
+        "sensor_type": "drone_sensor"
+    }
+}

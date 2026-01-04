@@ -59,7 +59,7 @@ Run the three components in separate terminal windows to observe the data flow i
 ### Terminal 1: Sensor Simulation
 Starts the KERI controller, initializes the identity, and begins signing data streams.
 ```bash
-python scripts/01_anchor_generator.py
+.\keri-env\Scripts\python.exe scripts\01_anchor_generator.py
 ```
 
 Creates a temporary database keri_run_<uuid> and outputs blockchain_anchor.json.
@@ -74,7 +74,7 @@ Terminal 3: Integrity Verification
 Reads the actual LMDB database files to audit the event chain.
 
 ```bash
-python scripts/03_kel_verifier.py
+.\keri-env\Scripts\python.exe scripts\03_kel_verifier.py
 ```
 
 ### Note on Persistence
