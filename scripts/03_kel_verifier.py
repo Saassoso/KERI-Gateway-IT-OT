@@ -30,39 +30,59 @@ from keri.core import serdering
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [VERIFIER]  - %(message)s')
 
 # Sensor configuration
-SENSORS = ["drone_sensor", "plc_sensor", "iot_sensor"]
+SENSORS = ["drone_sensor_1", "drone_sensor_2", "drone_sensor_3"]
 
 def get_config():
-    """Get configuration for all sensors."""
+    """Get configuration for all sensors from unified database."""
     configs = []
+    unified_db_path = None
     
+    # First, find the unified database path (all sensors use the same DB)
     for sensor_name in SENSORS:
         path_file = f"current_db_path_{sensor_name}.txt"
+        if os.path.exists(path_file):
+            try:
+                with open(path_file, "r") as f:
+                    unified_db_path = f.read().strip()
+                break  # All sensors use the same DB, so we only need one path
+            except Exception as e:
+                logging.error(f"Error reading path file for {sensor_name}: {e}")
+    
+    if not unified_db_path:
+        raise FileNotFoundError("Unified database path not found. Ensure at least one sensor is running.")
+    
+    # Now get AIDs for all sensors from their anchor files
+    for sensor_name in SENSORS:
         anchor_file = f"blockchain_anchor_{sensor_name}.json"
         
-        if not os.path.exists(path_file) or not os.path.exists(anchor_file):
-            logging.warning(f"Configuration files not found for {sensor_name}. Skipping...")
+        if not os.path.exists(anchor_file):
+            logging.warning(f"Anchor file not found for {sensor_name}. Skipping...")
             continue
         
         try:
-            with open(path_file, "r") as f:
-                db_path = f.read().strip()
-            
             with open(anchor_file, "r") as f:
                 anchor_data = json.load(f)
             
+            aid = anchor_data.get('aid')
+            if not aid:
+                logging.warning(f"AID not found in anchor file for {sensor_name}. Skipping...")
+                continue
+            
             configs.append({
                 "sensor_name": sensor_name,
-                "db_path": db_path,
-                "aid": anchor_data.get('aid'),
+                "db_path": unified_db_path,  # All sensors use the same unified database
+                "aid": aid,
                 "anchor_file": anchor_file
             })
         except Exception as e:
-            logging.error(f"Error reading config for {sensor_name}: {e}")
+            logging.error(f"Error reading anchor file for {sensor_name}: {e}")
             continue
     
     if not configs:
-        raise FileNotFoundError("No sensor configuration files found. Ensure generator is running.")
+        raise FileNotFoundError("No sensor configuration found. Ensure at least one sensor is running.")
+    
+    logging.info(f"Unified database: {unified_db_path}")
+    logging.info(f"Found {len(configs)} sensor(s) in unified database")
     
     return configs
 
@@ -75,32 +95,26 @@ def parse_event(raw_bytes):
     except Exception:
         return json.loads(bytes(raw_bytes))
 
-def verify_sensor(config):
-    """Verify a single sensor's database."""
+def verify_sensor(config, hby):
+    """Verify a single sensor's AID in the unified database."""
     sensor_name = config["sensor_name"]
-    db_path = config["db_path"]
     target_aid = config["aid"]
     
     try:
-        logging.info(f"[{sensor_name.upper()}] Targeting Database: {db_path}")
         logging.info(f"[{sensor_name.upper()}] Verifying AID: {target_aid}")
 
-        hby = habbing.Habery(name="controller", base=db_path)
-
         if target_aid not in hby.kevers:
-            logging.warning(f"[{sensor_name.upper()}] AID not found in Key Event Log.")
-            hby.close()
+            logging.warning(f"[{sensor_name.upper()}] AID not found in unified database.")
             return False
 
         print("\n" + "="*80)
         print(f"SENSOR: {sensor_name.upper()}")
-        print(f"Database: {db_path}")
         print(f"AID: {target_aid}")
         print("="*80)
         print(f"{'SEQ':<6} | {'TYPE':<6} | {'DIGEST (SAID)':<48} | {'PAYLOAD'}")
         print("-" * 80)
 
-        # Clone iterator for read-only access
+        # Clone iterator for read-only access - data is isolated by AID
         kel_iter = hby.db.clonePreIter(pre=target_aid, fn=0)
         events = list(kel_iter)
         
@@ -123,38 +137,48 @@ def verify_sensor(config):
         print(f"✅ {sensor_name.upper()}: {len(events)} events verified")
         print("="*80 + "\n")
         
-        hby.close()
         return True
 
     except Exception as e:
         logging.error(f"[{sensor_name.upper()}] Verification failed: {e}")
-        if 'hby' in locals():
-            hby.close()
         return False
 
 def main():
     try:
         configs = get_config()
-        logging.info(f"Found {len(configs)} sensor(s) to verify")
+        
+        if not configs:
+            raise FileNotFoundError("No sensors to verify.")
+        
+        # Get unified database path (all sensors use the same DB)
+        unified_db_path = configs[0]["db_path"]
         
         print("\n" + "="*80)
         print("KERI Multi-Sensor Verifier")
-        print(f"Verifying {len(configs)} sensor(s)")
+        print(f"Unified Database: {unified_db_path}")
+        print(f"Verifying {len(configs)} sensor(s) (data isolated by AID)")
         print("="*80)
         
-        success_count = 0
-        for config in configs:
-            if verify_sensor(config):
-                success_count += 1
+        # Open unified database once
+        hby = habbing.Habery(name="controller", base=unified_db_path)
         
-        print("\n" + "="*80)
-        print(f"Verification Summary: {success_count}/{len(configs)} sensor(s) verified successfully")
-        print("="*80 + "\n")
+        try:
+            success_count = 0
+            for config in configs:
+                if verify_sensor(config, hby):
+                    success_count += 1
+            
+            print("\n" + "="*80)
+            print(f"Verification Summary: {success_count}/{len(configs)} sensor(s) verified successfully")
+            print("="*80 + "\n")
+            
+            if success_count == len(configs):
+                logging.info("All sensors verified. Chain integrity confirmed.")
+            else:
+                logging.warning(f"Only {success_count} out of {len(configs)} sensors verified successfully.")
         
-        if success_count == len(configs):
-            logging.info("All sensors verified. Chain integrity confirmed.")
-        else:
-            logging.warning(f"Only {success_count} out of {len(configs)} sensors verified successfully.")
+        finally:
+            hby.close()
 
     except Exception as e:
         logging.error(f"Verification failed: {e}")
