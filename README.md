@@ -177,15 +177,6 @@ python scripts/03_kel_verifier.py
 - `blockchain_anchor_drone_sensor_2.json`
 - `blockchain_anchor_drone_sensor_3.json`
 
-Chaque fichier d'ancrage contient :
-```json
-{
-    "aid": "KERI_AID_HERE",
-    "seq": 5,
-    "said": "EVENT_HASH_HERE",
-    "payload": { ... }
-}
-```
 
 ### Fichiers de Chemin de Base de Données
 - `current_db_path_drone_sensor_1.txt`
