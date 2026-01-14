@@ -1,5 +1,6 @@
 # Virtual Environments
 keri-env/
+.\.env
 venv/
 env/
 
@@ -10,3 +11,9 @@ __pycache__/
 # IDE settings (optional but recommended)
 .vscode/
 .idea/
+
+.gitignore
+.env
+.keri-env/
+.venv/
+.env/
