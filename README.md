@@ -15,15 +15,15 @@ This is the **OT & IT Layer** of the system. It simulates industrial drone senso
 
 ##  Setup Guide
 
-##  System Installation (Required)
+0. **System Installation (Required)**
 
-This project is part of a 2-repository system. To make them work together, please follow this exact folder structure:
+This project is part of a 2-repository system. 
+- To make them work together, please follow this exact folder structure:
 
 1. **Create a Main System Folder**
-   ```bash
+```bash
    mkdir KERI-IT-OT-System
    cd KERI-IT-OT-System
-
 ```
 
 2. **Clone Both Repositories Here**
