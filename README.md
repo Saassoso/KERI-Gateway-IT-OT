@@ -6,14 +6,50 @@
 
 This is the **OT & IT Layer** of the system. It simulates industrial drone sensors that generate data, sign it using **KERI (Key Event Receipt Infrastructure)**, and anchor the cryptographic proofs to a blockchain bridge.
 
-## 📂 Project Structure
+##  Project Structure
 
 - `main.py`: **The Drone Sensor**. Generates temperature data and signs it (OT Layer).
 - `bridge.py`: **The Bridge**. Watches for new events and sends them to the Blockchain (IT Layer).
 - `verifier.py`: **The Auditor**. Verifies that the local database matches the Blockchain records.
 - `keri_drones_db/`: The tamper-proof local ledger (LMDB).
 
-## 🚀 Setup Guide
+##  Setup Guide
+
+##  System Installation (Required)
+
+This project is part of a 2-repository system. To make them work together, please follow this exact folder structure:
+
+1. **Create a Main System Folder**
+   ```bash
+   mkdir KERI-IT-OT-System
+   cd KERI-IT-OT-System
+
+```
+
+2. **Clone Both Repositories Here**
+```bash
+git clone [https://github.com/Saassoso/keri-gateway-it-ot.git](https://github.com/Saassoso/keri-gateway-it-ot.git) gateway
+git clone [https://github.com/Saassoso/keri-anchor-contract.git](https://github.com/Saassoso/keri-anchor-contract) contract
+
+```
+
+
+3. **Create Shared Environment**
+* **Virtual Env:** Create `keri-env` in this main folder.
+* **Config:** Create a `.env` file in this main folder.
+
+
+
+**Final Structure:**
+
+```text
+KERI-IT-OT-System/         <-- YOU ARE HERE
+├── .env                   <-- Shared Keys
+├── keri-env/              <-- Shared Python Environment
+├── contract/              <-- The Blockchain Repo
+└── gateway/               <-- This Python Repo
+
+```
 
 ### 1. Prerequisites
 - Python 3.10 or higher
