@@ -17,3 +17,5 @@ __pycache__/
 .keri-env/
 .venv/
 .env/
+
+.gitignore
