@@ -19,3 +19,5 @@ __pycache__/
 .env/
 
 .gitignore
+blockchain_anchor_drone_sensor_1.json
+current_db_path_drone_sensor_1.txt
