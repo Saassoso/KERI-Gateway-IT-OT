@@ -1,6 +1,6 @@
 # Virtual Environments
 keri-env/
-.\.env
+.env
 venv/
 env/
 
