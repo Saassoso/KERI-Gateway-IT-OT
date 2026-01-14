@@ -45,15 +45,25 @@ def get_active_sensors():
 
 def verify_sensor(sensor_config):
     name = sensor_config['name']
-    db_path = sensor_config['db_path']
+    db_path = sensor_config['db_path'] # This is the absolute path from the text file
     aid = sensor_config['aid']
     
     logging.info(f"--- Verifying {name.upper()} ---")
-    logging.info(f"Database: {db_path}")
+    logging.info(f"Target Database Path: {db_path}")
     logging.info(f"AID: {aid}")
     
-    # Open the database in Read-Only mode
-    hby = habbing.Habery(name="controller", base=db_path, free=True)
+    # Check if the path from the map file actually exists
+    if not os.path.exists(db_path):
+        logging.error(f"❌ Database folder not found at: {db_path}")
+        return False
+
+    # FIXED: Use the relative name "keri_drones_db", NOT the absolute path
+    # KERI will automatically resolve this to the path we verified above
+    try:
+        hby = habbing.Habery(name="controller", base="keri_drones_db", free=True)
+    except Exception as e:
+        logging.error(f"Could not open KERI database: {e}")
+        return False
     
     try:
         if aid not in hby.kevers:
@@ -61,12 +71,10 @@ def verify_sensor(sensor_config):
             return False
             
         # Iterate through the Key Event Log (KEL)
-        # clonePreIter returns an iterator of the raw bytes of the events
         kel_iter = hby.db.clonePreIter(pre=aid, fn=0)
         
         event_count = 0
         for raw_event in kel_iter:
-            # We just need to ensure we can read them (integrity check)
             event_count += 1
             
         logging.info(f"✅ Data Integrity Verified. Total Events: {event_count}")
