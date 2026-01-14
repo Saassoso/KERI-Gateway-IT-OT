@@ -1,23 +1,13 @@
-# Virtual Environments
-keri-env/
+# Ignore Config & Secrets
 .env
-venv/
-env/
-
-# Python compiled files
 __pycache__/
-*.py[cod]
+*.pyc
 
-# IDE settings (optional but recommended)
-.vscode/
-.idea/
+# Ignore Database & Anchors
+keri_drones_db/
+blockchain_anchor_*.json
+current_db_path_*.txt
 
-.gitignore
-.env
-.keri-env/
-.venv/
-.env/
-
-.gitignore
-blockchain_anchor_drone_sensor_1.json
-current_db_path_drone_sensor_1.txt
+# Ignore Virtual Env
+keri-env/
+venv/
