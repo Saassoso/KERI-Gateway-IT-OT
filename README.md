@@ -1,7 +1,8 @@
 # KERI Blockchain-Anchored IT/OT Security Gateway
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Status](https://img.shields.io/badge/Status-Prototype-orange)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![Solidity](https://img.shields.io/badge/Solidity-0.8.20-black)
 
 Un système de démonstration pour sécuriser les données IoT industrielles (OT) en utilisant **KERI (Key Event Receipt Infrastructure)**. Ce projet établit une "Chaîne de Confiance" vérifiable cryptographiquement entre la génération de données de capteurs et l'ancrage blockchain, comblant efficacement le fossé IT-OT.
 
